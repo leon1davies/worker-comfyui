@@ -161,11 +161,16 @@ RUN if [ "$MODEL_TYPE" = "flux1-dev-fp8" ]; then \
     fi
     
 RUN if [ "$MODEL_TYPE" = "flux1-kontext" ]; then \
+      mkdir -p models/loras && \
       wget -q -O models/diffusion_models/flux1-dev-kontext_fp8_scaled.safetensors https://huggingface.co/Comfy-Org/flux1-kontext-dev_ComfyUI/resolve/main/split_files/diffusion_models/flux1-dev-kontext_fp8_scaled.safetensors && \
       wget -q -O models/text_encoders/clip_l.safetensors https://huggingface.co/comfyanonymous/flux_text_encoders/resolve/main/clip_l.safetensors && \
       wget -q -O models/text_encoders/t5xxl_fp8_e4m3fn.safetensors https://huggingface.co/comfyanonymous/flux_text_encoders/resolve/main/t5xxl_fp8_e4m3fn.safetensors && \
-      wget -q -O models/vae/ae.safetensors https://huggingface.co/ffxvs/vae-flux/resolve/main/ae.safetensors; \
+      wget -q -O models/vae/ae.safetensors https://huggingface.co/ffxvs/vae-flux/resolve/main/ae.safetensors && \
+      wget -q -O models/loras/tan-lines-01.safetensors https://huggingface.co/lsd911/flux-loras/resolve/main/tan-lines-01.safetensors && \
+      wget -q -O models/loras/scg-anatomy-female-v2.safetensors https://huggingface.co/lsd911/flux-loras/resolve/main/scg-anatomy-female-v2.safetensors && \
+      wget -q -O models/loras/detailed_pussy_v3.1.safetensors https://huggingface.co/lsd911/flux-loras/resolve/main/detailed_pussy_v3.1.safetensors; \
     fi
+
 
 RUN if [ "$MODEL_TYPE" = "z-image-turbo" ]; then \
       wget -q --header="Authorization: Bearer ${HUGGINGFACE_ACCESS_TOKEN}" -O models/text_encoders/qwen_3_4b.safetensors https://huggingface.co/Comfy-Org/z_image_turbo/resolve/main/split_files/text_encoders/qwen_3_4b.safetensors && \
