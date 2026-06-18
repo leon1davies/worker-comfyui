@@ -123,7 +123,7 @@ FROM base AS downloader
 
 ARG HUGGINGFACE_ACCESS_TOKEN
 # Set default model type if none is provided
-ARG MODEL_TYPE=flux1-dev-fp8
+ARG MODEL_TYPE=flux1-kontext
 
 # Change working directory to ComfyUI
 WORKDIR /comfyui
@@ -158,6 +158,13 @@ RUN if [ "$MODEL_TYPE" = "flux1-dev" ]; then \
 
 RUN if [ "$MODEL_TYPE" = "flux1-dev-fp8" ]; then \
       wget -q -O models/checkpoints/flux1-dev-fp8.safetensors https://huggingface.co/Comfy-Org/flux1-dev/resolve/main/flux1-dev-fp8.safetensors; \
+    fi
+    
+RUN if [ "$MODEL_TYPE" = "flux1-kontext" ]; then \
+      wget -q -O models/diffusion_models/flux1-dev-kontext_fp8_scaled.safetensors https://huggingface.co/Comfy-Org/flux1-kontext-dev_ComfyUI/resolve/main/split_files/diffusion_models/flux1-dev-kontext_fp8_scaled.safetensors && \
+      wget -q -O models/text_encoders/clip_l.safetensors https://huggingface.co/comfyanonymous/flux_text_encoders/resolve/main/clip_l.safetensors && \
+      wget -q -O models/text_encoders/t5xxl_fp8_e4m3fn.safetensors https://huggingface.co/comfyanonymous/flux_text_encoders/resolve/main/t5xxl_fp8_e4m3fn.safetensors && \
+      wget -q -O models/vae/ae.safetensors https://huggingface.co/ffxvs/vae-flux/resolve/main/ae.safetensors; \
     fi
 
 RUN if [ "$MODEL_TYPE" = "z-image-turbo" ]; then \
