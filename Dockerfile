@@ -82,6 +82,15 @@ RUN uv pip install -r /comfyui/requirements.txt \
        done \
     && uv pip install "transformers>=4.50.3,<5" "huggingface-hub<1.0"
 
+# Inpaint lane (docs/runpod-inpaint-setup.md): the only custom node the inpaint graph needs —
+# comfyui_segment_anything (GroundingDINO+SAM text-prompt masking). Installed in the shared base so
+# the build-time smoke test below validates its import graph. Re-pin transformers/hf-hub AFTER its
+# requirements: the node can pull transformers 5.x back in, which removes BertModel.get_head_mask
+# and breaks GroundingDINO at runtime.
+RUN git clone --depth 1 https://github.com/storyicon/comfyui_segment_anything /comfyui/custom_nodes/comfyui_segment_anything \
+    && uv pip install -r /comfyui/custom_nodes/comfyui_segment_anything/requirements.txt \
+    && uv pip install "transformers>=4.50.3,<5" "huggingface-hub<1.0"
+
 # Build-time smoke test: actually start ComfyUI (imports the full node graph) so
 # a startup-breaking dependency is caught HERE, at build time, instead of as a
 # runtime "server not reachable" failure on a live worker. Runs on CPU — no GPU
@@ -122,8 +131,9 @@ CMD ["/start.sh"]
 FROM base AS downloader
 
 ARG HUGGINGFACE_ACCESS_TOKEN
-# Set default model type if none is provided
-ARG MODEL_TYPE=flux1-kontext
+# Set default model type if none is provided. This branch (inpaint-sd15) is dedicated to the inpaint
+# endpoint, and RunPod's GitHub build exposes no build-args field — so the ARG default is what builds.
+ARG MODEL_TYPE=inpaint-sd15
 
 # Change working directory to ComfyUI
 WORKDIR /comfyui
@@ -171,6 +181,14 @@ RUN if [ "$MODEL_TYPE" = "flux1-kontext" ]; then \
       wget -q -O models/loras/detailed_pussy_v3.1.safetensors https://huggingface.co/lsd911/flux-loras/resolve/main/detailed_pussy_v3.1.safetensors; \
     fi
 
+
+RUN if [ "$MODEL_TYPE" = "inpaint-sd15" ]; then \
+      mkdir -p models/checkpoints models/sams models/grounding-dino && \
+      wget -q -O models/checkpoints/epicrealism_v10-inpainting.safetensors https://huggingface.co/lsd911/pyxis-inpaint/resolve/main/epicrealism_v10-inpainting.safetensors && \
+      wget -q -O models/sams/sam_vit_h_4b8939.pth https://dl.fbaipublicfiles.com/segment_anything/sam_vit_h_4b8939.pth && \
+      wget -q -O models/grounding-dino/groundingdino_swint_ogc.pth https://huggingface.co/ShilongLiu/GroundingDINO/resolve/main/groundingdino_swint_ogc.pth && \
+      wget -q -O models/grounding-dino/GroundingDINO_SwinT_OGC.cfg.py https://huggingface.co/ShilongLiu/GroundingDINO/resolve/main/GroundingDINO_SwinT_OGC.cfg.py; \
+    fi
 
 RUN if [ "$MODEL_TYPE" = "z-image-turbo" ]; then \
       wget -q --header="Authorization: Bearer ${HUGGINGFACE_ACCESS_TOKEN}" -O models/text_encoders/qwen_3_4b.safetensors https://huggingface.co/Comfy-Org/z_image_turbo/resolve/main/split_files/text_encoders/qwen_3_4b.safetensors && \
