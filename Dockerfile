@@ -185,7 +185,7 @@ RUN if [ "$MODEL_TYPE" = "flux1-kontext" ]; then \
 RUN if [ "$MODEL_TYPE" = "inpaint-sd15" ]; then \
       mkdir -p models/checkpoints models/sams models/grounding-dino && \
       wget -q -O models/checkpoints/epicrealism_v10-inpainting.safetensors https://huggingface.co/lsd911/pyxis-inpaint/resolve/main/epicrealism_v10-inpainting.safetensors && \
-      wget -q -O models/sams/sam_vit_h_4b8939.pth https://dl.fbaipublicfiles.com/segment_anything/sam_vit_h_4b8939.pth && \
+      wget -q -O models/sams/sam_vit_b_01ec64.pth https://dl.fbaipublicfiles.com/segment_anything/sam_vit_b_01ec64.pth && \
       wget -q -O models/grounding-dino/groundingdino_swint_ogc.pth https://huggingface.co/ShilongLiu/GroundingDINO/resolve/main/groundingdino_swint_ogc.pth && \
       wget -q -O models/grounding-dino/GroundingDINO_SwinT_OGC.cfg.py https://huggingface.co/ShilongLiu/GroundingDINO/resolve/main/GroundingDINO_SwinT_OGC.cfg.py; \
     fi
